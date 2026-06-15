@@ -9,6 +9,7 @@ import com.blog_application.backend.models.PostTag;
 import com.blog_application.backend.models.Tag;
 import com.blog_application.backend.models.User;
 import com.blog_application.backend.repositories.PostRepository;
+import com.blog_application.backend.repositories.PostTagRepository;
 import com.blog_application.backend.repositories.UserRepository;
 import com.blog_application.backend.requests.PostRequest;
 import com.blog_application.backend.responses.PostResponse;
@@ -31,6 +32,7 @@ import java.util.List;
 public class PostService {
     @Autowired private PostRepository postRepository;
     @Autowired private UserRepository userRepository;
+    @Autowired private PostTagRepository postTagRepository;
     @Autowired private TagService tagService;
     @Autowired private CurrentUserService currentUserService;
 
@@ -67,9 +69,9 @@ public class PostService {
             PostTag postTag = new PostTag();
             postTag.setPost(post);
             postTag.setTag(tag);
-
-            post.getPostTags().add(postTag);
-            tag.getPostTags().add(postTag);
+            PostTag savedPostTag = postTagRepository.save(postTag);
+            post.getPostTags().add(savedPostTag);
+            tag.getPostTags().add(savedPostTag);
         }
 
         if(user.getRole().equals(Role.AUTHOR)) {
