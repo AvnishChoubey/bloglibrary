@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Register</title>
+
+    <style>
+        body{
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f4f6f8;
+        }
+
+        .card{
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        input, select{
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0 15px;
+            box-sizing: border-box;
+        }
+
+        button{
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        a{
+            text-decoration: none;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="card">
+
+    <h2>Register</h2>
+
+    <form th:action="@{/api/v1/auth/signup}" method="post">
+
+        <label>Name</label>
+        <input type="text" name="name" required>
+
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <label>Confirm Password</label>
+        <input type="password" name="confirmPassword" required>
+
+        <button type="submit">
+            Register
+        </button>
+
+    </form>
+
+    <br>
+
+    <a th:href="@{/api/v1/auth/login}">
+        Already have an account?
+    </a>
+
+</div>
+
+</body>
+</html>

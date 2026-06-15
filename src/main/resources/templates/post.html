@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f4f6f8;
+        }
+
+        .card{
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .meta{
+            color: #666;
+        }
+
+        .actions{
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button{
+            padding: 8px 14px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        button:hover{
+            background-color: #f0f0f0;
+        }
+
+        .comment-form input,
+        .comment-form textarea{
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .comment-card{
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .comment-actions{
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        h1,h2{
+            margin-top: 0;
+        }
+
+        .back-link{
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<a class="back-link" th:href="@{/api/v1/posts}">Back to Posts</a>
+<div class="card">
+    <h1 th:text="${post.title}"></h1>
+    <p class="meta">
+        By:
+        <span th:text="${post.author.name}"></span>
+    </p>
+    <p class="meta">
+        Tags:
+        <span th:each="tag, iterStat : ${post.tags}">
+        <span th:text="${tag.name}"></span><span th:if="${!iterStat.last}">, </span>
+    </span>
+    </p>
+    <p th:text="${post.content}"></p>
+
+    <div class="actions">
+        <form th:action="@{/api/v1/posts/{id}(id=${post.id})/update}" method="put">
+            <button type="submit">Edit Post</button>
+        </form>
+
+        <form th:action="@{/api/v1/posts/{id}(id=${post.id})/delete}" method="delete">
+            <button type="submit">Delete Post</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Add Comment</h2>
+    <form class="comment-form" th:action="@{/api/v1/posts/{id}/comments(id=${post.id})}" method="post" th:object="${comment}">
+        <label for="name">Name</label>
+        <input id="name" type="text" th:field="*{name}" required>
+
+        <label for="email">Email</label>
+        <input id="email" type="email" th:field="*{email}" required>
+
+        <label for="comment">Comment</label>
+        <textarea id="comment" th:field="*{comment}" rows="5" required></textarea>
+
+        <button type="submit">Add Comment</button>
+
+    </form>
+
+</div>
+
+<div class="card">
+
+    <h2>Comments</h2>
+
+    <div th:if="${#lists.isEmpty(comments)}">
+        No comments yet.
+    </div>
+
+    <div th:each="comment : ${comments}">
+        <div class="comment-card">
+            <h4 th:text="${comment.name}"></h4>
+            <p class="meta" th:text="${comment.email}">
+            </p>
+
+            <p th:text="${comment.comment}"></p>
+
+            <div class="comment-actions">
+
+                <form th:action="@{/api/v1/posts/{postId}/comments//{commentId}(postId=${post.id}, commentId=${comment.id})/update}"
+                      method="put">
+
+                    <button type="submit">Edit</button>
+
+                </form>
+
+                <form th:action="@{/api/v1/posts/{postId}/comments//{commentId}(postId=${post.id}, commentId=${comment.id})/delete}" method="delete">
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

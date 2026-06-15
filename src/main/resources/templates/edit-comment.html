@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Comment</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f4f6f8;
+        }
+
+        h1{
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card{
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .back-link{
+            display: inline-block;
+            margin-bottom: 15px;
+            text-decoration: none;
+        }
+
+        textarea{
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        button{
+            padding: 8px 14px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        button:hover{
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Blog Application</h1>
+<div class="card">
+    <h2>Edit Comment</h2>
+
+    <form th:action="@{/posts/{postId}/comments//{commentId}(postId=${postId},commentId=${comment.id})/update}" method="put">
+        <textarea name="comment" rows="8" th:text="${comment.content}"></textarea>
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+
+</body>
+</html>
