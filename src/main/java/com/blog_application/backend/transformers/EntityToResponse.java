@@ -16,6 +16,7 @@ public class EntityToResponse {
                 .title(post.getTitle())
                 .excerpt(post.getExcerpt())
                 .author(post.getAuthor().getName())
+                .authorEmail(post.getAuthor().getEmail())
                 .isPublished(post.isPublished())
                 .publishedAt(post.getPublishedAt())
                 .build();

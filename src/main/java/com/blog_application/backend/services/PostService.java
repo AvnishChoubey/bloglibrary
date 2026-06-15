@@ -32,6 +32,7 @@ public class PostService {
     @Autowired private PostRepository postRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private TagService tagService;
+    @Autowired private CurrentUserService currentUserService;
 
     //complete
     public Page<PostResponse> getAllPosts(String search, Long authorId, List<Long> tagIds, int page, int size, String sortBy, String sortDirection) {
@@ -53,7 +54,8 @@ public class PostService {
     }
 
     //complete
-    public PostResponse createPost(CustomUserDetails customUserDetails, PostRequest postRequest) {
+    public PostResponse createPost(PostRequest postRequest) {
+        CustomUserDetails customUserDetails = currentUserService.getCurrentUser();
         String email = customUserDetails.getUsername();
         User user = userRepository.findByEmail(email).get();
 
@@ -82,7 +84,8 @@ public class PostService {
 
     //complete
     @Transactional
-    public PostResponse updatePost(CustomUserDetails customUserDetails, PostRequest postRequest, Long postId) {
+    public PostResponse updatePost(PostRequest postRequest, Long postId) {
+        CustomUserDetails customUserDetails = currentUserService.getCurrentUser();
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Blog not found."));
 
         String email = customUserDetails.getUsername();
@@ -129,7 +132,8 @@ public class PostService {
     }
 
     //complete
-    public void deletePost(CustomUserDetails customUserDetails, Long postId) {
+    public void deletePost(Long postId) {
+        CustomUserDetails customUserDetails = currentUserService.getCurrentUser();
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Blog not found."));
 
         String email = customUserDetails.getUsername();

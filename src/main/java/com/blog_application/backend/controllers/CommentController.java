@@ -1,50 +1,88 @@
 package com.blog_application.backend.controllers;
 
 import com.blog_application.backend.config.CustomUserDetails;
-import com.blog_application.backend.models.Comment;
+import com.blog_application.backend.config.CustomUserDetailsService;
+import com.blog_application.backend.models.User;
+import com.blog_application.backend.repositories.UserRepository;
 import com.blog_application.backend.requests.CommentRequest;
-import com.blog_application.backend.responses.CommentResponse;
+import com.blog_application.backend.responses.PostResponse;
 import com.blog_application.backend.services.CommentService;
+import com.blog_application.backend.services.JwtService;
+import com.blog_application.backend.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
-@RequestMapping("/api/v1/posts/{postId}/comments")
 public class CommentController {
+
     @Autowired private CommentService commentService;
+    @Autowired private PostService postService;
+    @Autowired private JwtService jwtService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private CustomUserDetailsService customUserDetailsService;
 
-    @GetMapping("/")
-    public ResponseEntity<List<CommentResponse>> getAllComments(@PathVariable("postId") Long postId) {
-        List<CommentResponse> commentResponseList = commentService.getAllComments(postId);
-        return ResponseEntity.ok(commentResponseList);
+    private User resolveUser(String jwt) {
+        if (jwt == null || !jwtService.isTokenValid(jwt)) return null;
+        return userRepository.findByEmail(jwtService.extractEmail(jwt)).orElse(null);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<CommentResponse> createComment(@RequestBody CommentRequest commentRequest,
-                                                         @PathVariable("postId") Long postId) {
-       CommentResponse commentResponse = commentService.createComment(commentRequest, postId);
-       return ResponseEntity.ok(commentResponse);
+    private void applySecurityContext(String jwt) {
+        if (jwt != null && jwtService.isTokenValid(jwt)) {
+            String email = jwtService.extractEmail(jwt);
+            CustomUserDetails ud = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        }
     }
 
-    @PutMapping("/{commentId}/update")
-    public ResponseEntity<CommentResponse> updateComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                         @RequestBody String newContent,
-                                                         @PathVariable("postId") Long postId,
-                                                         @PathVariable("commentId") Long commentId) {
-        CommentResponse commentResponse = commentService.updateComment(customUserDetails, newContent, postId, commentId);
-        return ResponseEntity.ok(commentResponse);
+    private boolean isPostAuthor(User user, PostResponse post) {
+        if (user == null) return false;
+        return user.getEmail().equals(post.getAuthorEmail());
     }
 
-    @DeleteMapping("/{commentId}/delete")
-    public String deleteComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                @PathVariable("postId") Long postId,
-                                @PathVariable("commentId") Long commentId) {
-        commentService.deleteComment(customUserDetails, postId, commentId);
-        return "post";
+    @PostMapping("/posts/{postId}/comments")
+    public String createComment(@PathVariable Long postId,
+                                @ModelAttribute CommentRequest commentRequest) {
+        commentService.createComment(commentRequest, postId);
+        return "redirect:/posts/" + postId;
+    }
+
+    @PutMapping("/posts/{postId}/comments/{commentId}")
+    public String updateComment(@PathVariable Long postId,
+                                @PathVariable Long commentId,
+                                @RequestParam String content,
+                                @CookieValue(name = "jwt", required = false) String jwt) {
+        User user = resolveUser(jwt);
+        PostResponse post = postService.getPostById(postId);
+        if (!isPostAuthor(user, post)) return "redirect:/posts/" + postId;
+
+        try {
+            applySecurityContext(jwt);
+            commentService.updateComment(content, postId, commentId);
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+        return "redirect:/posts/" + postId;
+    }
+
+    @DeleteMapping("/posts/{postId}/comments/{commentId}")
+    public String deleteComment(@PathVariable Long postId,
+                                @PathVariable Long commentId,
+                                @CookieValue(name = "jwt", required = false) String jwt) {
+        User user = resolveUser(jwt);
+        PostResponse post = postService.getPostById(postId);
+        if (!isPostAuthor(user, post)) return "redirect:/posts/" + postId;
+
+        try {
+            applySecurityContext(jwt);
+            commentService.deleteComment(postId, commentId);
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+        return "redirect:/posts/" + postId;
     }
 }

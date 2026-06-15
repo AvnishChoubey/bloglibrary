@@ -19,6 +19,7 @@ public class PostResponse {
     private String excerpt;
     private String content;
     private String author;
+    private String authorEmail;
     private boolean isPublished;
     private LocalDateTime publishedAt;
     private Set<PostTag> postTags;

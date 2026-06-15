@@ -24,6 +24,7 @@ import java.util.List;
 public class CommentService {
     @Autowired private CommentRepository commentRepository;
     @Autowired private PostRepository postRepository;
+    @Autowired private CurrentUserService currentUserService;
 
     public List<CommentResponse> getAllComments(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Blog not found."));
@@ -43,7 +44,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponse updateComment(CustomUserDetails customUserDetails, String newContent, Long postId, Long commentId) {
+    public CommentResponse updateComment(String newContent, Long postId, Long commentId) {
+        CustomUserDetails customUserDetails = currentUserService.getCurrentUser();
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Blog not found."));
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not found."));
 
@@ -59,7 +61,8 @@ public class CommentService {
         }
     }
 
-    public void deleteComment(CustomUserDetails customUserDetails, Long postId, Long commentId) {
+    public void deleteComment(Long postId, Long commentId) {
+        CustomUserDetails customUserDetails = currentUserService.getCurrentUser();
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Blog not found."));
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not found."));
 

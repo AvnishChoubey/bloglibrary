@@ -25,6 +25,9 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        /* WEB (THYMELEAF) ROUTES — controllers handle their own authorization */
+                        .requestMatchers("/error", "/login", "/signup", "/logout").permitAll()
+                        .requestMatchers("/posts", "/posts/**").permitAll()
                         /* USER ENDPOINTS */
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         /* AUTH ENDPOINTS */

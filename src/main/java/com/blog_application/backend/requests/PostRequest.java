@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,10 +21,10 @@ public class PostRequest {
     private String title;
     @NotBlank
     private String content;
-    private String excerpt;
     @NotNull
     private Long authorId;
     private boolean isPublished;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime publishedAt;
-    private List<String> tags;
+    private String tags;
 }

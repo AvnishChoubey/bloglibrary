@@ -20,15 +20,10 @@ public class RequestToEntity {
         Post post = Post.builder()
                 .title(postRequest.getTitle())
                 .content(postRequest.getContent())
+                .excerpt(postRequest.getContent().substring(Math.min(200, postRequest.getContent().length())))
                 .isPublished(postRequest.isPublished())
                 .publishedAt(postRequest.getPublishedAt())
                 .build();
-
-        if(postRequest.getExcerpt() != null) {
-            post.setExcerpt(postRequest.getExcerpt());
-        } else {
-            post.setExcerpt(postRequest.getContent().substring(0, Math.min(200, postRequest.getContent().length())));
-        }
 
         if(post.isPublished()) {
             post.setPublishedAt(LocalDateTime.now());

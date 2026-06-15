@@ -14,14 +14,10 @@ import java.util.Set;
 public class TagService {
     @Autowired private TagRepository tagRepository;
 
-    public List<Tag> addAll(Collection<String> tagNames) {
-        Set<String> normalizedNames = new HashSet<>();
+    public List<Tag> addAll(String tags) {
+        Set<String> normalizedNames = Set.of(tags.trim().split("\\s+"));
 
-        tagNames.forEach(tagName -> {
-            normalizedNames.add(tagName.trim().toLowerCase());
-        });
-
-        List<Tag> existingTags = tagRepository.findByNameIn(tagNames);
+        List<Tag> existingTags = tagRepository.findByNameIn(normalizedNames);
 
         List<Tag> newTags = existingTags.stream()
                 .filter(name -> !existingTags.contains(name))

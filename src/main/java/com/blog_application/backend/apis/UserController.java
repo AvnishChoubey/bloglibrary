@@ -1,4 +1,4 @@
-package com.blog_application.backend.controllers;
+package com.blog_application.backend.apis;
 
 import com.blog_application.backend.requests.UserRoleChangeRequest;
 import com.blog_application.backend.responses.UserResponse;
@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("apiUserController")
 @RequestMapping("/api/v1/users")
 public class UserController {
     @Autowired private UserService userService;
